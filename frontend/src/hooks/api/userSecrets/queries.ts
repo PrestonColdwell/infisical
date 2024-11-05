@@ -4,15 +4,12 @@ import { apiRequest } from "@app/config/request";
 
 import { TUserSecret } from "./types";
 
-// export const secretSharingKeys = {
-//   allSharedSecrets: () => ["sharedSecrets"] as const,
-//   specificSharedSecrets: ({ offset, limit }: { offset: number; limit: number }) =>
-//     [...secretSharingKeys.allSharedSecrets(), { offset, limit }] as const,
-//   getSecretById: (arg: { id: string; hashedHex: string | null; password?: string }) => [
-//     "shared-secret",
-//     arg
-//   ]
-// };
+export const userSecretKeys = {
+  allSharedSecrets: () => ["userSecrets"] as const,
+  // specificUserSecrets: ({ offset, limit }: { offset: number; limit: number }) =>
+  //   [...secretSharingKeys.allSharedSecrets(), { offset, limit }] as const,
+  getSecretById: (arg: { id: string }) => ["user-secret", arg]
+};
 
 export const useGetUserSecrets = ({
   offset = 0,
@@ -68,4 +65,3 @@ export const useGetUserSecrets = ({
 //     }
 //   );
 // };
-

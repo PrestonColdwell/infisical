@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { createNotification } from "@app/components/notifications";
 import { Button, DeleteActionModal } from "@app/components/v2";
 import { usePopUp } from "@app/hooks";
-import { useDeleteSharedSecret } from "@app/hooks/api/secretSharing";
+import { useDeleteUserSecret } from "@app/hooks/api/userSecrets";
 
 import { AddUserSecretModal } from "./AddUserSecretModal";
 import { UserSecretsTable } from "./UserSecretsTable";
@@ -13,16 +13,17 @@ import { UserSecretsTable } from "./UserSecretsTable";
 type DeleteModalData = { name: string; id: string };
 
 export const UserSecretSection = () => {
-  const deleteSharedSecret = useDeleteSharedSecret();
+  const deleteUserSecret = useDeleteUserSecret();
   const { popUp, handlePopUpToggle, handlePopUpClose, handlePopUpOpen } = usePopUp([
     "createUserSecret",
-    "deleteUserSecretConfirmation"
+    "deleteUserSecretConfirmation",
+    "updateUserSecret"
   ] as const);
 
   const onDeleteApproved = async () => {
     try {
-      deleteSharedSecret.mutateAsync({
-        sharedSecretId: (popUp?.deleteUserSecretConfirmation?.data as DeleteModalData)?.id
+      deleteUserSecret.mutateAsync({
+        userSecretId: (popUp?.deleteUserSecretConfirmation?.data as DeleteModalData)?.id
       });
       createNotification({
         text: "Successfully deleted user secret",

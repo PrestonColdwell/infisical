@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { UserSecretsSchema } from "@app/db/schemas";
-import { readLimit } from "@app/server/config/rateLimiter";
+import { readLimit, writeLimit } from "@app/server/config/rateLimiter";
 import { verifyAuth } from "@app/server/plugins/auth/verify-auth";
 import { AuthMode } from "@app/services/auth/auth-type";
 
@@ -114,68 +114,65 @@ export const registerUserSecretRouter = async (server: FastifyZodProvider) => {
   //   }
   // });
 
-  // server.route({
-  //   method: "POST",
-  //   url: "/",
-  //   config: {
-  //     rateLimit: publicSecretShareCreationLimit
-  //   },
-  //   schema: {
-  //     body: z.object({
-  //       name: z.string().max(50).optional(),
-  //       password: z.string().optional(),
-  //       secretValue: z.string(),
-  //       expiresAt: z.string(),
-  //       expiresAfterViews: z.number().min(1).optional(),
-  //       accessType: z.nativeEnum(SecretSharingAccessType).default(SecretSharingAccessType.Organization)
-  //     }),
-  //     response: {
-  //       200: z.object({
-  //         id: z.string()
-  //       })
-  //     }
-  //   },
-  //   onRequest: verifyAuth([AuthMode.JWT]),
-  //   handler: async (req) => {
-  //     const sharedSecret = await req.server.services.secretSharing.createSharedSecret({
-  //       actor: req.permission.type,
-  //       actorId: req.permission.id,
-  //       orgId: req.permission.orgId,
-  //       actorAuthMethod: req.permission.authMethod,
-  //       actorOrgId: req.permission.orgId,
-  //       ...req.body
-  //     });
-  //     return { id: sharedSecret.id };
-  //   }
-  // });
+  server.route({
+    method: "POST",
+    url: "/",
+    config: {
+      // rateLimit: publicSecretShareCreationLimit
+    },
+    schema: {
+      body: z.object({
+        name: z.string().max(50),
+        type: z.string(),
+        encryptedData: z.string()
+      }),
+      response: {
+        200: z.object({
+          id: z.string()
+        })
+      }
+    },
+    onRequest: verifyAuth([AuthMode.JWT]),
+    handler: async (req) => {
+      const userSecret = await req.server.services.userSecrets.createUserSecret({
+        actor: req.permission.type,
+        actorId: req.permission.id,
+        orgId: req.permission.orgId,
+        actorAuthMethod: req.permission.authMethod,
+        actorOrgId: req.permission.orgId,
+        ...req.body
+      });
+      return { id: userSecret.id };
+    }
+  });
 
-  // server.route({
-  //   method: "DELETE",
-  //   url: "/:sharedSecretId",
-  //   config: {
-  //     rateLimit: writeLimit
-  //   },
-  //   schema: {
-  //     params: z.object({
-  //       sharedSecretId: z.string()
-  //     }),
-  //     response: {
-  //       200: SecretSharingSchema
-  //     }
-  //   },
-  //   onRequest: verifyAuth([AuthMode.JWT]),
-  //   handler: async (req) => {
-  //     const { sharedSecretId } = req.params;
-  //     const deletedSharedSecret = await req.server.services.secretSharing.deleteSharedSecretById({
-  //       actor: req.permission.type,
-  //       actorId: req.permission.id,
-  //       orgId: req.permission.orgId,
-  //       actorAuthMethod: req.permission.authMethod,
-  //       actorOrgId: req.permission.orgId,
-  //       sharedSecretId
-  //     });
+  server.route({
+    method: "DELETE",
+    url: "/:userSecretId",
+    config: {
+      rateLimit: writeLimit
+    },
+    schema: {
+      params: z.object({
+        userSecretId: z.string()
+      }),
+      response: {
+        200: UserSecretsSchema
+      }
+    },
+    onRequest: verifyAuth([AuthMode.JWT]),
+    handler: async (req) => {
+      const { userSecretId } = req.params;
+      const deletedUserSecret = await req.server.services.userSecrets.deleteUserSecretById({
+        actor: req.permission.type,
+        actorId: req.permission.id,
+        orgId: req.permission.orgId,
+        actorAuthMethod: req.permission.authMethod,
+        actorOrgId: req.permission.orgId,
+        userSecretId
+      });
 
-  //     return { ...deletedSharedSecret };
-  //   }
-  // });
+      return { ...deletedUserSecret };
+    }
+  });
 };
