@@ -202,6 +202,8 @@ import { userDALFactory } from "@app/services/user/user-dal";
 import { userServiceFactory } from "@app/services/user/user-service";
 import { userAliasDALFactory } from "@app/services/user-alias/user-alias-dal";
 import { userEngagementServiceFactory } from "@app/services/user-engagement/user-engagement-service";
+import { userSecretsDALFactory } from "@app/services/user-secrets/user-secrets-dal";
+import { userSecretsServiceFactory } from "@app/services/user-secrets/user-secrets-service";
 import { webhookDALFactory } from "@app/services/webhook/webhook-dal";
 import { webhookServiceFactory } from "@app/services/webhook/webhook-service";
 import { workflowIntegrationDALFactory } from "@app/services/workflow-integration/workflow-integration-dal";
@@ -325,6 +327,7 @@ export const registerRoutes = async (
   const userGroupMembershipDAL = userGroupMembershipDALFactory(db);
   const secretScanningDAL = secretScanningDALFactory(db);
   const secretSharingDAL = secretSharingDALFactory(db);
+  const userSecretsDAL = userSecretsDALFactory(db);
   const licenseDAL = licenseDALFactory(db);
   const dynamicSecretDAL = dynamicSecretDALFactory(db);
   const dynamicSecretLeaseDAL = dynamicSecretLeaseDALFactory(db);
@@ -947,6 +950,13 @@ export const registerRoutes = async (
     kmsService
   });
 
+  const userSecretsService = userSecretsServiceFactory({
+    permissionService,
+    userSecretsDAL,
+    orgDAL,
+    kmsService
+  });
+
   const accessApprovalPolicyService = accessApprovalPolicyServiceFactory({
     accessApprovalPolicyDAL,
     accessApprovalPolicyApproverDAL,
@@ -1329,6 +1339,7 @@ export const registerRoutes = async (
     identityProjectAdditionalPrivilege: identityProjectAdditionalPrivilegeService,
     identityProjectAdditionalPrivilegeV2: identityProjectAdditionalPrivilegeV2Service,
     secretSharing: secretSharingService,
+    userSecrets: userSecretsService,
     userEngagement: userEngagementService,
     externalKms: externalKmsService,
     cmek: cmekService,
