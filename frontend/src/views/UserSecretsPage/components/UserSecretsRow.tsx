@@ -37,7 +37,7 @@ export const UserSecretsRow = ({
     }: {
       name: string;
       id: string;
-      encryptedData?: string;
+      encryptedData?: { [key: string]: string };
       type?: string;
     }
   ) => void;
@@ -86,7 +86,7 @@ export const UserSecretsRow = ({
             onClick={(e) => {
               e.stopPropagation();
               handlePopUpOpen("deleteUserSecretConfirmation", {
-                name: "delete",
+                name: row.name,
                 id: row.id
               });
             }}

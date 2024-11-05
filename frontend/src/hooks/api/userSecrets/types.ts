@@ -2,7 +2,7 @@ export type TUserSecret = {
   id: string;
   name: string;
   type: string;
-  encryptedData: string;
+  encryptedData: { [key: string]: string; };
   userId: string;
   orgId: string;
   createdAt: Date;
