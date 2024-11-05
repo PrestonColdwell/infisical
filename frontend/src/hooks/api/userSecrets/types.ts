@@ -40,3 +40,9 @@ export type TViewUserSecretResponse = {
 export type TDeleteUserSecretRequest = {
   userSecretId: string;
 };
+
+export enum UserSecretType {
+  WebLogin = "Web Login",
+  CreditCard = "Credit Card",
+  SecureNote = "Secure Note"
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -50,15 +50,17 @@ type Props = {
   ) => void;
 };
 
-export const UserSecretForm = ({
-  editMode = false,
-  formValues,
-  handlePopUpClose
-}: Props) => {
+export const UserSecretForm = ({ editMode = false, formValues, handlePopUpClose }: Props) => {
   const [selectedType, setSelectedType] = useState("0");
 
   const createUserSecret = useCreateUserSecret();
   const editUserSecret = useEditUserSecret();
+
+  useEffect(() => {
+    if (editMode) {
+      setSelectedType(formValues?.type || "0");
+    }
+  }, [editMode, formValues]);
 
   const {
     control,

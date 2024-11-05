@@ -4,8 +4,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { format } from "date-fns";
 
 import { IconButton, Td, Tr } from "@app/components/v2";
-import { TUserSecret } from "@app/hooks/api/userSecrets";
+import { TUserSecret, UserSecretType } from "@app/hooks/api/userSecrets";
 import { UsePopUpState } from "@app/hooks/usePopUp";
+
+const getUserSecretType = (type: string): UserSecretType | "-" => {
+  switch (type) {
+    case "0":
+      return UserSecretType.WebLogin;
+    case "1":
+      return UserSecretType.CreditCard;
+    case "2":
+      return UserSecretType.SecureNote;
+    default:
+      return "-";
+  }
+};
 
 export const UserSecretsRow = ({
   row,
@@ -36,7 +49,7 @@ export const UserSecretsRow = ({
   return (
     <Tr key={row.id}>
       <Td>{row.name ? `${row.name}` : "-"}</Td>
-      <Td>{row.type ? `${row.type}` : "-"}</Td>
+      <Td>{row.type ? getUserSecretType(row.type) : "-"}</Td>
       <Td>
         {isDataVisible ? (
           <div>
