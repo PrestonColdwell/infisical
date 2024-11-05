@@ -7,6 +7,8 @@ import { IconButton, Td, Tr } from "@app/components/v2";
 import { TUserSecret, UserSecretType } from "@app/hooks/api/userSecrets";
 import { UsePopUpState } from "@app/hooks/usePopUp";
 
+import UserSecretsDataColumn from "./UserSecretsDataColumn";
+
 const getUserSecretType = (type: string): UserSecretType | "-" => {
   switch (type) {
     case "0":
@@ -50,19 +52,7 @@ export const UserSecretsRow = ({
     <Tr key={row.id}>
       <Td>{row.name ? `${row.name}` : "-"}</Td>
       <Td>{row.type ? getUserSecretType(row.type) : "-"}</Td>
-      <Td>
-        {isDataVisible ? (
-          <div>
-            {Object.entries(row.encryptedData).map(([key, value]) => (
-              <div key={key}>
-                <strong>{key}:</strong> {value}
-              </div>
-            ))}
-          </div>
-        ) : (
-          "******"
-        )}
-      </Td>
+      <Td>{isDataVisible ? <UserSecretsDataColumn {...row} /> : "******"}</Td>
       <Td>{`${format(new Date(row.createdAt), "yyyy-MM-dd - HH:mm a")}`}</Td>
       <Td>{`${format(new Date(row.updatedAt), "yyyy-MM-dd - HH:mm a")}`}</Td>
       <Td>
