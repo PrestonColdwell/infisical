@@ -7,7 +7,6 @@ import { userSecretKeys } from "./queries";
 import { TDeleteUserSecretRequest, TEditUserSecretRequest, TUserSecret } from "./types";
 
 export const useCreateUserSecret = () => {
-  console.log("createUserSecretReached");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (inputData: any) => {
