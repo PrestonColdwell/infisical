@@ -3,6 +3,7 @@ import { TUserSecret } from "@app/hooks/api/userSecrets";
 const UserSecretsDataColumn = ({ encryptedData, type }: TUserSecret): React.ReactNode => {
   const data: { [key: string]: string } = encryptedData as {};
   const underlineStyle = { textDecoration: "underline", textDecorationThickness: "1px" };
+  const preWrapStyle = { whiteSpace: "pre-wrap" };
 
   switch (type) {
     case "0": {
@@ -39,7 +40,7 @@ const UserSecretsDataColumn = ({ encryptedData, type }: TUserSecret): React.Reac
     case "2": {
       // Personal note
       const entries = Object.entries(data);
-      return <div>{entries[0][1]}</div>;
+      return <div style={preWrapStyle}>{entries[0][1]}</div>;
     }
     default:
       return "******";
