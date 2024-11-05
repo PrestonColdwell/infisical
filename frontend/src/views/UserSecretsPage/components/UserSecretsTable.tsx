@@ -19,7 +19,7 @@ import { UserSecretsRow } from "./UserSecretsRow";
 
 type Props = {
   handlePopUpOpen: (
-    popUpName: keyof UsePopUpState<["deleteUserSecretConfirmation", "updateUserSecret"]>,
+    popUpName: keyof UsePopUpState<["deleteUserSecretConfirmation", "editUserSecret"]>,
     {
       name,
       id

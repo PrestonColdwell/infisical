@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { faEye, faEyeSlash, faPencilAlt,faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faEyeSlash, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { format } from "date-fns";
 
@@ -13,13 +13,17 @@ export const UserSecretsRow = ({
 }: {
   row: TUserSecret;
   handlePopUpOpen: (
-    popUpName: keyof UsePopUpState<["deleteUserSecretConfirmation", "updateUserSecret"]>,
+    popUpName: keyof UsePopUpState<["deleteUserSecretConfirmation", "editUserSecret"]>,
     {
       name,
-      id
+      id,
+      encryptedData,
+      type
     }: {
       name: string;
       id: string;
+      encryptedData?: string;
+      type?: string;
     }
   ) => void;
 }) => {
@@ -63,9 +67,11 @@ export const UserSecretsRow = ({
           <IconButton
             onClick={(e) => {
               e.stopPropagation();
-              handlePopUpOpen("updateUserSecret", {
-                name: "update",
-                id: row.id
+              handlePopUpOpen("editUserSecret", {
+                name: row.name,
+                id: row.id,
+                type: row.type,
+                encryptedData: row.encryptedData
               });
             }}
             variant="plain"

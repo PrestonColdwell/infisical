@@ -1,6 +1,6 @@
 export type TUserSecret = {
   id: string;
-  name: string | null;
+  name: string;
   type: string;
   encryptedData: string;
   userId: string;
@@ -14,6 +14,13 @@ export type TCreatedUserSecret = {
 };
 
 export type TCreateUserSecretRequest = {
+  name: string;
+  type: string;
+  encryptedData: string;
+};
+
+export type TEditUserSecretRequest = {
+  id: string;
   name: string;
   type: string;
   encryptedData: string;

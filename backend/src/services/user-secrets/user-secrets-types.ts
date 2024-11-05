@@ -19,6 +19,11 @@ export type TCreateUserSecretDTO = {
   type: string;
 };
 
+export type TEditUserSecretDTO = {
+  id: string;
+} & TCreateUserSecretDTO &
+  TGenericPermission;
+
 // export type TCreateUserSecretCredDTO = {};
 
 export type TGetActiveUserSecretByIdDTO = {

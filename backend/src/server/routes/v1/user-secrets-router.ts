@@ -86,33 +86,37 @@ export const registerUserSecretRouter = async (server: FastifyZodProvider) => {
   //   }
   // });
 
-  // server.route({
-  //   method: "POST",
-  //   url: "/public",
-  //   config: {
-  //     rateLimit: writeLimit
-  //   },
-  //   schema: {
-  //     body: z.object({
-  //       secretValue: z.string().max(10_000),
-  //       password: z.string().optional(),
-  //       expiresAt: z.string(),
-  //       expiresAfterViews: z.number().min(1).optional()
-  //     }),
-  //     response: {
-  //       200: z.object({
-  //         id: z.string()
-  //       })
-  //     }
-  //   },
-  //   handler: async (req) => {
-  //     const sharedSecret = await req.server.services.secretSharing.createPublicSharedSecret({
-  //       ...req.body,
-  //       accessType: SecretSharingAccessType.Anyone
-  //     });
-  //     return { id: sharedSecret.id };
-  //   }
-  // });
+  server.route({
+    method: "PUT",
+    url: "/:userSecretId",
+    config: {
+      rateLimit: writeLimit
+    },
+    schema: {
+      body: z.object({
+        id: z.string(),
+        name: z.string().max(50),
+        type: z.string(),
+        encryptedData: z.string()
+      }),
+      response: {
+        200: z.object({
+          id: z.string()
+        })
+      }
+    },
+    handler: async (req) => {
+      const updatedSecret = await req.server.services.userSecrets.editUserSecretById({
+        actor: req.permission.type,
+        actorId: req.permission.id,
+        orgId: req.permission.orgId,
+        actorAuthMethod: req.permission.authMethod,
+        actorOrgId: req.permission.orgId,
+        ...req.body
+      });
+      return { id: updatedSecret.id };
+    }
+  });
 
   server.route({
     method: "POST",

@@ -4,30 +4,32 @@ import { UsePopUpState } from "@app/hooks/usePopUp";
 import { UserSecretForm } from "./UserSecretForm";
 
 type Props = {
-  popUp: UsePopUpState<["createUserSecret", "editUserSecret"]>;
+  popUp: UsePopUpState<["editUserSecret", "createUserSecret"]>;
   handlePopUpToggle: (
-    popUpName: keyof UsePopUpState<["createUserSecret", "editUserSecret"]>,
+    popUpName: keyof UsePopUpState<["editUserSecret", "createUserSecret"]>,
     state?: boolean
   ) => void;
   handlePopUpClose: (
-    popUpName: keyof UsePopUpState<["createUserSecret", "editUserSecret"]>
+    popUpName: keyof UsePopUpState<["editUserSecret", "createUserSecret"]>
   ) => void;
 };
 
-export const AddUserSecretModal = ({ popUp, handlePopUpToggle, handlePopUpClose }: Props) => {
+export const EditUserSecretModal = ({ popUp, handlePopUpToggle, handlePopUpClose }: Props) => {
   return (
     <Modal
-      isOpen={popUp?.createUserSecret?.isOpen}
+      isOpen={popUp?.editUserSecret?.isOpen}
       onOpenChange={(isOpen) => {
-        handlePopUpToggle("createUserSecret", isOpen);
+        handlePopUpToggle("editUserSecret", isOpen);
       }}
     >
       <ModalContent
-        title="Create a Secret"
+        title="Edit Secret"
         subTitle="Please enter your credential details to store them securely."
       >
         <UserSecretForm
-          value={(popUp.createUserSecret.data as { value?: string })?.value}
+          formValues={popUp.editUserSecret.data}
+          value={(popUp.editUserSecret.data as { value?: string })?.value}
+          editMode
           handlePopUpToggle={handlePopUpToggle}
           handlePopUpClose={handlePopUpClose}
         />

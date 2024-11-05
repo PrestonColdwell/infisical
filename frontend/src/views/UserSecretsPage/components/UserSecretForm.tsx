@@ -5,7 +5,8 @@ import { z } from "zod";
 
 import { createNotification } from "@app/components/notifications";
 import { Button, FormControl, Input, Select, SelectItem } from "@app/components/v2";
-import { useCreateUserSecret } from "@app/hooks/api/userSecrets";
+import { useCreateUserSecret, useEditUserSecret } from "@app/hooks/api/userSecrets";
+import { UsePopUpState } from "@app/hooks/usePopUp";
 
 const typeOptions = [
   { label: "Web Login", value: "0" },
@@ -14,6 +15,7 @@ const typeOptions = [
 ];
 
 const schema = z.object({
+  id: z.string().optional(),
   name: z.string(),
   type: z.string(),
   encryptedData: z.union([
@@ -28,7 +30,8 @@ const schema = z.object({
     }),
     z.object({
       content: z.string()
-    })
+    }),
+    z.object({})
   ])
 });
 
@@ -36,48 +39,97 @@ export type FormData = z.infer<typeof schema>;
 
 type Props = {
   value?: string;
+  editMode?: boolean;
+  formValues?: FormData;
+  handlePopUpToggle: (
+    popUpName: keyof UsePopUpState<["editUserSecret"] | ["createUserSecret"]>,
+    state?: boolean
+  ) => void;
+  handlePopUpClose: (
+    popUpName: keyof UsePopUpState<["editUserSecret"] | ["createUserSecret"]>
+  ) => void;
 };
 
-export const UserSecretForm = ({ value }: Props) => {
+export const UserSecretForm = ({
+  editMode = false,
+  formValues,
+  handlePopUpClose
+}: Props) => {
   const [selectedType, setSelectedType] = useState("0");
 
   const createUserSecret = useCreateUserSecret();
+  const editUserSecret = useEditUserSecret();
 
   const {
     control,
     reset,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
+    setValue
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: value || "",
-      type: "0",
-      encryptedData: {}
+      name: formValues?.name || "",
+      type: formValues?.type || "0",
+      encryptedData: formValues?.encryptedData || {}
     }
   });
 
   const onFormSubmit = async (data: FormData) => {
-    try {
-      const serializedData = {
-        ...data,
-        encryptedData: JSON.stringify(data.encryptedData)
-      };
+    if (editMode) {
+      try {
+        const serializedData = {
+          ...data,
+          encryptedData: JSON.stringify(data.encryptedData)
+        };
 
-      await createUserSecret.mutateAsync(serializedData);
+        await editUserSecret.mutateAsync({
+          inputData: {
+            ...serializedData,
+            id: formValues?.id || ""
+          },
+          userSecretId: formValues?.id || ""
+        });
 
-      reset();
+        reset();
 
-      createNotification({
-        text: "Secret successfully created.",
-        type: "success"
-      });
-    } catch (error) {
-      console.error(error);
-      createNotification({
-        text: "Failed to create user secret.",
-        type: "error"
-      });
+        createNotification({
+          text: "Secret successfully updated.",
+          type: "success"
+        });
+
+        handlePopUpClose("editUserSecret");
+      } catch (error) {
+        console.error(error);
+        createNotification({
+          text: "Failed to update user secret.",
+          type: "error"
+        });
+      }
+    } else {
+      try {
+        const serializedData = {
+          ...data,
+          encryptedData: JSON.stringify(data.encryptedData)
+        };
+
+        await createUserSecret.mutateAsync(serializedData);
+
+        reset();
+
+        createNotification({
+          text: "Secret successfully created.",
+          type: "success"
+        });
+
+        handlePopUpClose("createUserSecret");
+      } catch (error) {
+        console.error(error);
+        createNotification({
+          text: "Failed to create user secret.",
+          type: "error"
+        });
+      }
     }
   };
 
@@ -104,6 +156,7 @@ export const UserSecretForm = ({ value }: Props) => {
               onValueChange={(e) => {
                 onChange(e);
                 setSelectedType(e);
+                setValue("encryptedData", {});
               }}
               className="w-full"
             >
@@ -199,7 +252,7 @@ export const UserSecretForm = ({ value }: Props) => {
         isLoading={isSubmitting}
         isDisabled={isSubmitting}
       >
-        Create Secret
+        {editMode ? "Edit Secret" : "Create Secret"}
       </Button>
     </form>
   );

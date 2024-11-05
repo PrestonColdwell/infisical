@@ -8,6 +8,7 @@ import { usePopUp } from "@app/hooks";
 import { useDeleteUserSecret } from "@app/hooks/api/userSecrets";
 
 import { AddUserSecretModal } from "./AddUserSecretModal";
+import { EditUserSecretModal } from "./EditUserSecretModal";
 import { UserSecretsTable } from "./UserSecretsTable";
 
 type DeleteModalData = { name: string; id: string };
@@ -17,7 +18,7 @@ export const UserSecretSection = () => {
   const { popUp, handlePopUpToggle, handlePopUpClose, handlePopUpOpen } = usePopUp([
     "createUserSecret",
     "deleteUserSecretConfirmation",
-    "updateUserSecret"
+    "editUserSecret"
   ] as const);
 
   const onDeleteApproved = async () => {
@@ -60,7 +61,16 @@ export const UserSecretSection = () => {
         </Button>
       </div>
       <UserSecretsTable handlePopUpOpen={handlePopUpOpen} />
-      <AddUserSecretModal popUp={popUp} handlePopUpToggle={handlePopUpToggle} />
+      <AddUserSecretModal
+        popUp={popUp}
+        handlePopUpToggle={handlePopUpToggle}
+        handlePopUpClose={handlePopUpClose}
+      />
+      <EditUserSecretModal
+        popUp={popUp}
+        handlePopUpToggle={handlePopUpToggle}
+        handlePopUpClose={handlePopUpClose}
+      />
       <DeleteActionModal
         isOpen={popUp.deleteUserSecretConfirmation.isOpen}
         title={`Delete ${

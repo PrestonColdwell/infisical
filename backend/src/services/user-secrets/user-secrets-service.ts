@@ -7,6 +7,7 @@ import { TUserSecretsDALFactory } from "./user-secrets-dal";
 import {
   TCreateUserSecretDTO,
   TDeleteUserSecretDTO,
+  TEditUserSecretDTO,
   TGetActiveUserSecretByIdDTO,
   TGetUserSecretsDTO
 } from "./user-secrets-types";
@@ -162,24 +163,38 @@ export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }:
     };
   };
 
+  const editUserSecretById = async (editUserSecretInput: TEditUserSecretDTO) => {
+    const { actor, actorId, orgId, actorAuthMethod, actorOrgId, id, name, type, encryptedData } = editUserSecretInput;
+    const { permission } = await permissionService.getOrgPermission(actor, actorId, orgId, actorAuthMethod, actorOrgId);
+    if (!permission) throw new ForbiddenRequestError({ name: "User does not belong to the specified organization" });
+
+    const updatedSecret = await userSecretsDAL.updateById(id, {
+      name,
+      type,
+      encryptedData
+    });
+
+    return updatedSecret;
+  };
+
   const deleteUserSecretById = async (deleteUserSecretInput: TDeleteUserSecretDTO) => {
     const { actor, actorId, orgId, actorAuthMethod, actorOrgId, userSecretId } = deleteUserSecretInput;
     const { permission } = await permissionService.getOrgPermission(actor, actorId, orgId, actorAuthMethod, actorOrgId);
     if (!permission) throw new ForbiddenRequestError({ name: "User does not belong to the specified organization" });
 
-    const sharedSecret = await userSecretsDAL.findById(userSecretId);
+    const userSecret = await userSecretsDAL.findById(userSecretId);
 
-    if (sharedSecret.orgId && sharedSecret.orgId !== orgId)
+    if (userSecret.orgId && userSecret.orgId !== orgId)
       throw new ForbiddenRequestError({ message: "User does not have permission to delete shared secret" });
 
-    const deletedSharedSecret = await userSecretsDAL.deleteById(userSecretId);
+    const deletedUserSecret = await userSecretsDAL.deleteById(userSecretId);
 
-    return deletedSharedSecret;
+    return deletedUserSecret;
   };
 
   return {
     createUserSecret,
-    // createPublicSharedSecret,
+    editUserSecretById,
     getUserSecrets,
     deleteUserSecretById,
     // getSharedSecretById
