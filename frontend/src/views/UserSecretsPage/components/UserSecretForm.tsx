@@ -7,6 +7,7 @@ import { createNotification } from "@app/components/notifications";
 import { Button, FormControl, Input, Select, SelectItem } from "@app/components/v2";
 import { useCreateUserSecret, useEditUserSecret } from "@app/hooks/api/userSecrets";
 import { UsePopUpState } from "@app/hooks/usePopUp";
+import { encrypt } from "@app/hooks/utils/crypto-client";
 
 const typeOptions = [
   { label: "Web Login", value: "0" },
@@ -78,13 +79,21 @@ export const UserSecretForm = ({ editMode = false, formValues, handlePopUpClose 
   });
 
   const onFormSubmit = async (data: FormData) => {
-    if (editMode) {
-      try {
-        const serializedData = {
-          ...data,
-          encryptedData: JSON.stringify(data.encryptedData)
-        };
+    const encryptData = (encrData: Record<string, any>) => {
+      const encryptedData: Record<string, string> = {};
+      Object.entries(encrData).forEach(([key, value]) => {
+        encryptedData[key] = encrypt(value);
+      });
+      return encryptedData;
+    };
 
+    const serializedData = {
+      ...data,
+      encryptedData: JSON.stringify(encryptData(data.encryptedData))
+    };
+
+    try {
+      if (editMode) {
         await editUserSecret.mutateAsync({
           inputData: {
             ...serializedData,
@@ -92,46 +101,24 @@ export const UserSecretForm = ({ editMode = false, formValues, handlePopUpClose 
           },
           userSecretId: formValues?.id || ""
         });
-
-        reset();
-
-        createNotification({
-          text: "Secret successfully updated.",
-          type: "success"
-        });
-
-        handlePopUpClose("editUserSecret");
-      } catch (error) {
-        console.error(error);
-        createNotification({
-          text: "Failed to update user secret.",
-          type: "error"
-        });
-      }
-    } else {
-      try {
-        const serializedData = {
-          ...data,
-          encryptedData: JSON.stringify(data.encryptedData)
-        };
-
+      } else {
         await createUserSecret.mutateAsync(serializedData);
-
-        reset();
-
-        createNotification({
-          text: "Secret successfully created.",
-          type: "success"
-        });
-
-        handlePopUpClose("createUserSecret");
-      } catch (error) {
-        console.error(error);
-        createNotification({
-          text: "Failed to create user secret.",
-          type: "error"
-        });
       }
+
+      reset();
+
+      createNotification({
+        text: `Secret successfully ${editMode ? "updated" : "created"}.`,
+        type: "success"
+      });
+
+      handlePopUpClose(editMode ? "editUserSecret" : "createUserSecret");
+    } catch (error) {
+      console.error(error);
+      createNotification({
+        text: `Failed to ${editMode ? "update" : "create"} user secret.`,
+        type: "error"
+      });
     }
   };
 
