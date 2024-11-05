@@ -13,7 +13,6 @@ export type TCreateUserSecretDTO = {
   actorAuthMethod: ActorAuthMethod;
   actorOrgId: string;
   orgId: string;
-  // userId: string;
   name: string;
   encryptedData: string;
   type: string;
@@ -24,17 +23,9 @@ export type TEditUserSecretDTO = {
 } & TCreateUserSecretDTO &
   TGenericPermission;
 
-// export type TCreateUserSecretCredDTO = {};
-
 export type TGetActiveUserSecretByIdDTO = {
   userSecretId: string;
 };
-
-// export type TValidateActiveSharedSecretDTO = TGetActiveSharedSecretByIdDTO & {
-//   password: string;
-// };
-
-// export type TCreateUserSecretDTO = TSharedSecretPermission & TCreateUserSecretCredDTO;
 
 export type TDeleteUserSecretDTO = {
   orgId: string;

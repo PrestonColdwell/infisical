@@ -21,8 +21,6 @@ type TUserSecretsServiceFactoryDep = {
 
 export type TUserSecretsServiceFactory = ReturnType<typeof userSecretsServiceFactory>;
 
-// const isUuidV4 = (uuid: string) => z.string().uuid().safeParse(uuid).success;
-
 export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }: TUserSecretsServiceFactoryDep) => {
   const createUserSecret = async ({
     actor,
@@ -36,17 +34,6 @@ export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }:
   }: TCreateUserSecretDTO) => {
     const { permission } = await permissionService.getOrgPermission(actor, actorId, orgId, actorAuthMethod, actorOrgId);
     if (!permission) throw new ForbiddenRequestError({ name: "User is not a part of the specified organization" });
-
-    // if (secretValue.length > 10_000) {
-    //   throw new BadRequestError({ message: "Shared secret value too long" });
-    // }
-
-    // const encryptWithRoot = kmsService.encryptWithRootKey();
-
-    // const encryptedSecret = encryptWithRoot(Buffer.from(encryptedData));
-
-    // const id = crypto.randomBytes(32).toString("hex");
-    // const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 
     const newUserSecret = await userSecretsDAL.create({
       name,
@@ -81,11 +68,6 @@ export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }:
       { offset, limit }
     );
 
-    // const count = await userSecretsDAL.countAllUserOrgSharedSecrets({
-    //   orgId: actorOrgId,
-    //   userId: actorId
-    // });
-
     return {
       secrets,
       totalCount: secrets.length
@@ -102,63 +84,9 @@ export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }:
         message: `Shared secret with ID '${userSecretId}' not found`
       });
 
-    // const { accessType, expiresAt, expiresAfterViews } = sharedSecret;
-
-    // const orgName = sharedSecret.orgId ? (await orgDAL.findOrgById(sharedSecret.orgId))?.name : "";
-
-    // if (accessType === SecretSharingAccessType.Organization && orgId !== sharedSecret.orgId)
-    // throw new ForbiddenRequestError();
-
-    // all secrets pass through here, meaning we check if its expired first and then check if it needs verification
-    // or can be safely sent to the client.
-    // if (expiresAt !== null && expiresAt < new Date()) {
-    // check lifetime expiry
-    //   await secretSharingDAL.softDeleteById(sharedSecretId);
-    //   throw new ForbiddenRequestError({
-    //     message: "Access denied: Secret has expired by lifetime"
-    //   });
-    // }
-
-    // if (expiresAfterViews !== null && expiresAfterViews === 0) {
-    //   // check view count expiry
-    //   await secretSharingDAL.softDeleteById(sharedSecretId);
-    //   throw new ForbiddenRequestError({
-    //     message: "Access denied: Secret has expired by view count"
-    //   });
-    // }
-
-    // const isPasswordProtected = Boolean(sharedSecret.password);
-    // const hasProvidedPassword = Boolean(password);
-    // if (isPasswordProtected) {
-    //   if (hasProvidedPassword) {
-    //     const isMatch = await bcrypt.compare(password as string, sharedSecret.password as string);
-    //     if (!isMatch) throw new UnauthorizedError({ message: "Invalid credentials" });
-    //   } else {
-    //     return { isPasswordProtected };
-    //   }
-    // }
-
-    // If encryptedSecret is set, we know that this secret has been encrypted using KMS, and we can therefore do server-side decryption.
-    // let decryptedSecretValue: Buffer | undefined;
-    // if (sharedSecret.encryptedSecret) {
-    //   const decryptWithRoot = kmsService.decryptWithRootKey();
-    //   decryptedSecretValue = decryptWithRoot(sharedSecret.encryptedSecret);
-    // }
-
-    // decrement when we are sure the user will view secret.
-    // await $decrementSecretViewCount(sharedSecret);
-
     return {
-      // isPasswordProtected,
       secret: {
         ...sharedSecret
-        // ...(decryptedSecretValue && {
-        //   secretValue: Buffer.from(decryptedSecretValue).toString()
-        // }),
-        // orgName:
-        //   sharedSecret.accessType === SecretSharingAccessType.Organization && orgId === sharedSecret.orgId
-        //     ? orgName
-        //     : undefined
       }
     };
   };
@@ -197,7 +125,6 @@ export const userSecretsServiceFactory = ({ permissionService, userSecretsDAL }:
     editUserSecretById,
     getUserSecrets,
     deleteUserSecretById,
-    // getSharedSecretById
     getUserSecretById
   };
 };

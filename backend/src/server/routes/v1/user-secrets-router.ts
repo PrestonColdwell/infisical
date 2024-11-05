@@ -41,51 +41,6 @@ export const registerUserSecretRouter = async (server: FastifyZodProvider) => {
     }
   });
 
-  // server.route({
-  //   method: "POST",
-  //   url: "/public/:id",
-  //   config: {
-  //     rateLimit: publicEndpointLimit
-  //   },
-  //   schema: {
-  //     params: z.object({
-  //       id: z.string()
-  //     }),
-  //     body: z.object({
-  //       hashedHex: z.string().min(1).optional(),
-  //       password: z.string().optional()
-  //     }),
-  //     response: {
-  //       200: z.object({
-  //         isPasswordProtected: z.boolean(),
-  //         secret: SecretSharingSchema.pick({
-  //           encryptedValue: true,
-  //           iv: true,
-  //           tag: true,
-  //           expiresAt: true,
-  //           expiresAfterViews: true,
-  //           accessType: true
-  //         })
-  //           .extend({
-  //             orgName: z.string().optional(),
-  //             secretValue: z.string().optional()
-  //           })
-  //           .optional()
-  //       })
-  //     }
-  //   },
-  //   handler: async (req) => {
-  //     const sharedSecret = await req.server.services.secretSharing.getSharedSecretById({
-  //       sharedSecretId: req.params.id,
-  //       hashedHex: req.body.hashedHex,
-  //       password: req.body.password,
-  //       orgId: req.permission?.orgId
-  //     });
-
-  //     return sharedSecret;
-  //   }
-  // });
-
   server.route({
     method: "PUT",
     url: "/:userSecretId",
@@ -122,7 +77,7 @@ export const registerUserSecretRouter = async (server: FastifyZodProvider) => {
     method: "POST",
     url: "/",
     config: {
-      // rateLimit: publicSecretShareCreationLimit
+      rateLimit: writeLimit
     },
     schema: {
       body: z.object({
