@@ -25,7 +25,8 @@ export const publicPaths = [
   "/login/sso",
   "/admin/signup",
   "/shared/secret/[id]",
-  "/share-secret"
+  "/share-secret",
+  "/user-secrets"
 ];
 
 export const languageMap = {
